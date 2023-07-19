@@ -1,0 +1,3 @@
+farm-haystack[inference]
+farm-haystack[sql]
+farm-haystack[elastic]

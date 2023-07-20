@@ -1,14 +1,24 @@
-from haystack.document_stores import SQLDocumentStore
-from haystack.nodes import FARMReader, TfidfRetriever
-from haystack.pipelines import ExtractiveQAPipeline
+from haystack.document_stores import SQLDocumentStore, ElasticsearchDocumentStore
+from haystack.nodes import FARMReader, TfidfRetriever, BM25Retriever
+from haystack.pipelines import ExtractiveQAPipeline, DocumentSearchPipeline
 
 import config
 from processor import SkimlinksPreProcessor
 
-document_store = SQLDocumentStore(url="sqlite:///stg.sqlite")
-retriever = TfidfRetriever(document_store=document_store)
+document_store = ElasticsearchDocumentStore(
+    scheme="https",
+    host=config.ELASTIC_CLOUD_HOST,
+    port=config.ELASTIC_PORT,
+    api_key_id=config.ELASTIC_API_ID,
+    api_key=config.ELASTIC_API_KEY,
+    verify_certs=False,
+    index='haystack_stg_gather_catalog',
+    search_fields=['title', 'descr', 'regprice', 'price', 'brand', 'currency', 'country_code', 'domain', 'url'],
+    name_field='title'
+)
+retriever = BM25Retriever(document_store=document_store)
 reader = FARMReader(model_name_or_path="deepset/roberta-base-squad2", use_gpu=True)
-pipe = ExtractiveQAPipeline(reader, retriever)
+pipe = DocumentSearchPipeline(retriever)
 
 processor = SkimlinksPreProcessor(
     # clean_empty_lines=True,
@@ -44,7 +54,7 @@ def setup_haystack():
 def query_haystack(query) -> dict:
     prediction = pipe.run(
         query=query,
-        params={"Retriever": {"top_k": 10}, "Reader": {"top_k": 5}}
+        params={"Retriever": {"top_k": 10}}
     )
     from pprint import pprint
     pprint(prediction)

@@ -21,6 +21,9 @@ class SkimlinksPreProcessor(PreProcessor):
         # print(documents)
         c = ""
         for i, j in documents.meta.items():
-            c += (f"{i} {j}. ")
+            if 'price' in i:
+                c += f"{i} {int(j) / 100}\n"
+            else:
+                c += f"{i} {j}\n"
         documents.content += ' ' + c
         return super().process(documents, id_hash_keys=id_hash_keys)

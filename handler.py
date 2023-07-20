@@ -17,15 +17,10 @@ document_store = ElasticsearchDocumentStore(
     api_key=config.ELASTIC_API_KEY,
     verify_certs=False,
     index='haystack_stg_gather_catalog',
-    search_fields=['title', 'descr', 'regprice', 'price', 'brand', 'currency', 'country_code', 'domain', 'url'],
+    search_fields=['title', 'descr', 'regprice', 'price', 'brand', 'currency',
+                   'country_code', 'domain', 'url', 'merchant_name'],
     name_field='title'
 )
-retriever = BM25Retriever(document_store=document_store)
-#----
-# document_store = InMemoryDocumentStore()
-# document_store = SQLDocumentStore(url="sqlite:///stg.sqlite")
-# document_store = SQLDocumentStore(url="mysql://root:root@127.0.0.1:3306/rm_stage")
-document_store = ElasticsearchDocumentStore(host="localhost", username="", password="", index="rm_index")
 #----
 # retriever = TfidfRetriever(document_store=document_store)
 # retriever2 = BM25Retriever(document_store=document_store)
